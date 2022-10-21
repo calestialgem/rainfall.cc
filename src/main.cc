@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "test.cc"
-
-#include <iostream>
+#include "tester.cc"
 
 /* Entry to the compiler. */
 int main() {
-  using namespace std;
-  cout << GetMessage() << endl;
+  Tester tester;
+  tester.Register([]() { return true; });
+  tester.Run();
 }

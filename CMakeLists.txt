@@ -22,6 +22,7 @@ function(SetupTarget setTarget)
       -Wall
       -Wextra
       -Wpedantic
+      -Wno-pragma-once-outside-header
     )
   endif(MSVC)
 endfunction(SetupTarget setTarget)
@@ -30,12 +31,27 @@ endfunction(SetupTarget setTarget)
 add_executable(${PROJECT_NAME} src/main.cc)
 SetupTarget(${PROJECT_NAME})
 
+# Precompile standard library.
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+  <chrono>
+  <cstddef>
+  <format>
+  <functional>
+  <iostream>
+  <string_view>
+  <utility>
+  <vector>
+)
+
 # Header files in the project.
 set(headerFiles
-  src/test.cc
+  src/tester.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
 # Compile commands helps clangd to understand the headers.
 add_library(headerObjects OBJECT ${headerFiles})
 SetupTarget(headerObjects)
+
+# Reuse precompiled standard library.
+target_precompile_headers(headerObjects REUSE_FROM ${PROJECT_NAME})
