@@ -23,6 +23,12 @@ class Tester {
 
 public:
 
+  /* Register the tests in the tester module to the given tester. */
+  static void RegisterTests(Tester& tester) {
+    // Tests the whole infrastructure.
+    tester.Register([]() { return true; });
+  }
+
   /* Register the given unit test with the given file and line information. If
    * the location is not given, it is defaulted to the callers location. */
   void Register(

@@ -6,6 +6,6 @@
 /* Entry to the compiler. */
 int main() {
   Tester tester;
-  tester.Register([]() { return true; });
+  Tester::RegisterTests(tester);
   tester.Run();
 }
