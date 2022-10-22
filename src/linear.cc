@@ -5,27 +5,18 @@
 
 #include "tester.cc"
 
-/* For visiting `std::variant`s. */
-template<class... Types>
-struct Visitor : Types... {
-  using Types::operator()...;
-};
-
-// Deduction guide that is supposed to be unnecessary for C++20 but the visitor
-// does not work without it.
-template<class... Types>
-Visitor(Types...) -> Visitor<Types...>;
-
-/* Loads files of a package in to the memory. */
-class Loader {
+/* Character by character representation of code. */
+class Linear {
 public:
 
   /* A Thrice source. */
   struct Source {
+    /* Path to the source file. */
+    std::filesystem::path path;
     /* Name of the source. */
-    std::string name;
+    std::string           name;
     /* Contents of the source. */
-    std::string contents;
+    std::string           contents;
   };
 
   /* A Thrice module. */
@@ -100,7 +91,8 @@ private:
     // Read the contents.
     std::string contents;
     inputStream >> contents;
-    return Source{.name = path.stem().string(), .contents = contents};
+    return Source{
+      .path = path, .name = path.stem().string(), .contents = contents};
   }
 
   /* Total amount of sources in the module including the ones in the

@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "loader.cc"
+#include "linear.cc"
 #include "tester.cc"
 
 /* Run the unit tests. Returns whether all tests passed. */
 bool RunTests() {
   Tester tester;
   Tester::RegisterTests(tester);
-  Loader::RegisterTests(tester);
+  Linear::RegisterTests(tester);
   return tester.Run();
 }
 
@@ -27,7 +27,7 @@ int main(int argumentCount, char const* const* arguments) {
     return -1;
   }
 
-  auto workspace = Loader::LoadWorkspace(workspaceDirectory);
+  auto workspace = Linear::LoadWorkspace(workspaceDirectory);
 
   if (workspace.packages.empty()) {
     std::cerr << "There are no packages in the workspace!" << std::endl;

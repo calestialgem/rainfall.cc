@@ -50,12 +50,14 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
   <utility>
   <variant>
   <vector>
+
+  "src/visitor.cc"
 )
 
 # Header files in the project.
 set(headerFiles
   src/tester.cc
-  src/loader.cc
+  src/linear.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
