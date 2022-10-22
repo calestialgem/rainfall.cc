@@ -5,6 +5,17 @@
 
 #include "tester.cc"
 
+/* For visiting `std::variant`s. */
+template<class... Types>
+struct Visitor : Types... {
+  using Types::operator()...;
+};
+
+// Deduction guide that is supposed to be unnecessary for C++20 but the visitor
+// does not work without it.
+template<class... Types>
+Visitor(Types...) -> Visitor<Types...>;
+
 /* Loads files of a package in to the memory. */
 class Loader {
 public:
@@ -158,10 +169,35 @@ public:
     // Test checking a valid source name.
     tester.Register([]() { return CheckName("Hello"); });
 
-    // Test loading the Test package.
+    // Test whether correct amount of packages are loaded.
     tester.Register([]() {
       auto workspace = LoadWorkspace(".");
       return workspace.packages.size() == 2;
+    });
+
+    // Test whether all packages have correct names.
+    tester.Register([]() {
+      auto workspace = LoadWorkspace(".");
+      return std::ranges::all_of(
+        workspace.packages, [](Package const& package) {
+          return std::visit(
+            Visitor{
+              [&package](Module const& content) {
+          return content.name == package.name;
+              },
+              [&package](Source const& content) {
+          return content.name == package.name;
+            }},
+            package.contents);
+        });
+    });
+
+    // Test whether all packages have a name.
+    tester.Register([]() {
+      auto workspace = LoadWorkspace(".");
+      return std::ranges::all_of(
+        workspace.packages,
+        [](Package const& package) { return !package.name.empty(); });
     });
   }
 };
