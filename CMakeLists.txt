@@ -44,6 +44,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
   <iterator>
   <numeric>
   <optional>
+  <span>
   <string>
   <string_view>
   <utility>

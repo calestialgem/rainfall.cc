@@ -47,8 +47,8 @@ public:
     registered.push_back({move(unit), path, line});
   }
 
-  /* Run all the unit tests. */
-  void Run() const {
+  /* Run all the unit tests. Returns whether all tests passed. */
+  [[nodiscard]] bool Run() const {
     using namespace std;
     using namespace std::chrono;
     using milliseconds = duration<long double, milli>;
@@ -90,5 +90,7 @@ public:
     auto elapsed     = high_resolution_clock::now() - start;
     auto elapsedTime = duration_cast<milliseconds>(elapsed).count();
     cout << format(" ({:.3f} ms)", elapsedTime) << endl;
+
+    return failedTests == 0;
   }
 };
