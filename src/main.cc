@@ -35,6 +35,6 @@ int main(int argumentCount, char const* const* arguments) {
   }
 
   std::cout << "Loaded packages: " << std::endl;
-  for (auto const& package : workspace.packages)
-    std::cout << std::format("- {}", package.name) << std::endl;
+  for (auto const& [name, package] : workspace.packages)
+    std::cout << std::format("- {}", name) << std::endl;
 }

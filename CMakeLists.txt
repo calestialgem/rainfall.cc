@@ -47,6 +47,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
   <span>
   <string>
   <string_view>
+  <unordered_map>
   <utility>
   <variant>
   <vector>

@@ -22,15 +22,15 @@ public:
   /* A Thrice module. */
   struct Module {
     /* Name of the module. */
-    std::string         name;
+    std::string                             name;
     /* Contained sources that are directly under the module. This does not
      * include the sources that are contained by the submodules of the
      * module. */
-    std::vector<Source> sources;
+    std::unordered_map<std::string, Source> sources;
     /* Contained modules that are directly under the module. This does not
      * include the modules that are contained by the submodules of the
      * module. */
-    std::vector<Module> submodules;
+    std::unordered_map<std::string, Module> submodules;
   };
 
   /* A Thrice package. */
@@ -44,7 +44,7 @@ public:
   /* A Rainfall workspace, which contains Thrice packages. */
   struct Workspace {
     /* Packages in the workspace. */
-    std::vector<Package> packages;
+    std::unordered_map<std::string, Package> packages;
   };
 
 private:
@@ -101,7 +101,9 @@ private:
     return std::transform_reduce(
       counted.submodules.begin(), counted.submodules.end(),
       counted.sources.size(), std::plus{},
-      [](Module const& submodule) { return CountContainedSources(submodule); });
+      [](std::pair<std::string, Module> const& submodule) {
+      return CountContainedSources(submodule.second);
+      });
   }
 
   /* Module at the given directory. */
@@ -118,11 +120,12 @@ private:
       if (entry.is_directory()) {
         // Try loading the directory as a submodule.
         auto submodule = LoadModule(entry, false);
-        if (submodule) result.submodules.emplace_back(*std::move(submodule));
+        if (submodule)
+          result.submodules[submodule->name] = *std::move(submodule);
       } else {
         // Try loading the path as a source.
         auto source = LoadSource(entry, package);
-        if (source) result.sources.emplace_back(*std::move(source));
+        if (source) result.sources[source->name] = *std::move(source);
       }
     }
 
@@ -141,10 +144,11 @@ public:
       if (entry.is_directory()) {
         auto packageModule = LoadModule(entry, true);
         if (packageModule)
-          result.packages.push_back({packageModule->name, *packageModule});
+          result.packages[packageModule->name] = {
+            packageModule->name, *packageModule};
       } else {
         auto source = LoadSource(entry, false);
-        if (source) result.packages.push_back({source->name, *source});
+        if (source) result.packages[source->name] = {source->name, *source};
       }
     }
     return result;
@@ -171,16 +175,16 @@ public:
     tester.Register([]() {
       auto workspace = LoadWorkspace(".");
       return std::ranges::all_of(
-        workspace.packages, [](Package const& package) {
+        workspace.packages, [](std::pair<std::string, Package> const& package) {
           return std::visit(
             Visitor{
               [&package](Module const& content) {
-          return content.name == package.name;
+          return content.name == package.first;
               },
               [&package](Source const& content) {
-          return content.name == package.name;
+          return content.name == package.first;
             }},
-            package.contents);
+            package.second.contents);
         });
     });
 
@@ -188,8 +192,9 @@ public:
     tester.Register([]() {
       auto workspace = LoadWorkspace(".");
       return std::ranges::all_of(
-        workspace.packages,
-        [](Package const& package) { return !package.name.empty(); });
+        workspace.packages, [](std::pair<std::string, Package> const& package) {
+          return !package.first.empty();
+        });
     });
   }
 };
