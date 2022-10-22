@@ -37,8 +37,8 @@ A _source_ is a file that has UTF-8 encoded text in it, which is a list of
 symbol definitions.
 
 File extension of a source is `.tr`. Name of a source can only contain the lower
-and upper case versions of the letters in the English alphabet and it should be
-written in `PascalCase`.
+and upper case versions of the letters in the English alphabet and decimal
+digits. It must start with an upper case letter.
 
 ## Modules
 
