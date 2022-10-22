@@ -45,24 +45,7 @@ struct Linear {
     std::unordered_map<std::string, Package> packages;
   };
 
-  /* Loads the workspace in the given directory. */
-  static Workspace LoadWorkspace(std::filesystem::path const& directory) {
-    Workspace result;
-    for (auto const& entry : std::filesystem::directory_iterator(directory)) {
-      if (entry.is_directory()) {
-        auto packageModule = LoadModule(entry, true);
-        if (packageModule)
-          result.packages[packageModule->name] = {
-            packageModule->name, *packageModule};
-      } else {
-        auto source = LoadSource(entry, false);
-        if (source) result.packages[source->name] = {source->name, *source};
-      }
-    }
-    return result;
-  }
-
-  /* Register the tests in the loader module to the given tester. */
+  /* Register the tests in the linear module to the given tester. */
   static void RegisterTests(Tester& tester) {
     // Test checking empty source name.
     tester.Register([]() { return !CheckName(""); });
@@ -104,6 +87,23 @@ struct Linear {
           return !package.first.empty();
         });
     });
+  }
+
+  /* Loads the workspace in the given directory. */
+  static Workspace LoadWorkspace(std::filesystem::path const& directory) {
+    Workspace result;
+    for (auto const& entry : std::filesystem::directory_iterator(directory)) {
+      if (entry.is_directory()) {
+        auto packageModule = LoadModule(entry, true);
+        if (packageModule)
+          result.packages[packageModule->name] = {
+            packageModule->name, *packageModule};
+      } else {
+        auto source = LoadSource(entry, false);
+        if (source) result.packages[source->name] = {source->name, *source};
+      }
+    }
+    return result;
   }
 
 private:
