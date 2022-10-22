@@ -7,7 +7,7 @@
     // Build the project using cmake.
     {
       "type": "cmake",
-      "label": "rebuild",
+      "label": "build",
       "command": "build",
       "group": {
         "kind": "build",
