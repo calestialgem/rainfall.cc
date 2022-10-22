@@ -69,8 +69,8 @@ A symbol is always visible in the source it is defined in. It can be more
 accessable using a visibility modifier. There are three visibility modifiers in
 Thrice:
 
-- `private` makes a symbol visible in the module it is defined in,
-- `public` makes a symbol visible in the package it is defined in,
+- `module` makes a symbol visible in the module it is defined in,
+- `intern` makes a symbol visible in the package it is defined in,
 - `extern` makes a symbol visible everywhere.
 
 ## Namespaces
