@@ -119,7 +119,7 @@ private:
     if (!directory.has_filename() || !CheckName(directory.filename().string()))
       return std::nullopt;
 
-    Module result;
+    Module result = {.name = directory.filename().string()};
 
     // Load all the entries in the directory.
     for (auto const& entry : std::filesystem::directory_iterator(directory)) {
