@@ -6,9 +6,7 @@
 #include "tester.cc"
 
 /* Character by character representation of code. */
-class Linear {
-public:
-
+struct Linear {
   /* A Thrice source. */
   struct Source {
     /* Path to the source file. */
@@ -46,6 +44,67 @@ public:
     /* Packages in the workspace. */
     std::unordered_map<std::string, Package> packages;
   };
+
+  /* Loads the workspace in the given directory. */
+  static Workspace LoadWorkspace(std::filesystem::path const& directory) {
+    Workspace result;
+    for (auto const& entry : std::filesystem::directory_iterator(directory)) {
+      if (entry.is_directory()) {
+        auto packageModule = LoadModule(entry, true);
+        if (packageModule)
+          result.packages[packageModule->name] = {
+            packageModule->name, *packageModule};
+      } else {
+        auto source = LoadSource(entry, false);
+        if (source) result.packages[source->name] = {source->name, *source};
+      }
+    }
+    return result;
+  }
+
+  /* Register the tests in the loader module to the given tester. */
+  static void RegisterTests(Tester& tester) {
+    // Test checking empty source name.
+    tester.Register([]() { return !CheckName(""); });
+    // Test checking source name with a non-upper case start.
+    tester.Register([]() { return !CheckName("hello"); });
+    // Test checking source name with a non-alphabetic character.
+    tester.Register([]() { return !CheckName("Hello+"); });
+    // Test checking a valid source name.
+    tester.Register([]() { return CheckName("Hello"); });
+
+    // Test whether correct amount of packages are loaded.
+    tester.Register([]() {
+      auto workspace = LoadWorkspace(".");
+      return workspace.packages.size() == 2;
+    });
+
+    // Test whether all packages have correct names.
+    tester.Register([]() {
+      auto workspace = LoadWorkspace(".");
+      return std::ranges::all_of(
+        workspace.packages, [](std::pair<std::string, Package> const& package) {
+          return std::visit(
+            Visitor{
+              [&package](Module const& content) {
+          return content.name == package.first;
+              },
+              [&package](Source const& content) {
+          return content.name == package.first;
+            }},
+            package.second.contents);
+        });
+    });
+
+    // Test whether all packages have a name.
+    tester.Register([]() {
+      auto workspace = LoadWorkspace(".");
+      return std::ranges::all_of(
+        workspace.packages, [](std::pair<std::string, Package> const& package) {
+          return !package.first.empty();
+        });
+    });
+  }
 
 private:
 
@@ -133,68 +192,5 @@ private:
     if (CountContainedSources(result) == 0) return std::nullopt;
 
     return result;
-  }
-
-public:
-
-  /* Loads the workspace in the given directory. */
-  static Workspace LoadWorkspace(std::filesystem::path const& directory) {
-    Workspace result;
-    for (auto const& entry : std::filesystem::directory_iterator(directory)) {
-      if (entry.is_directory()) {
-        auto packageModule = LoadModule(entry, true);
-        if (packageModule)
-          result.packages[packageModule->name] = {
-            packageModule->name, *packageModule};
-      } else {
-        auto source = LoadSource(entry, false);
-        if (source) result.packages[source->name] = {source->name, *source};
-      }
-    }
-    return result;
-  }
-
-  /* Register the tests in the loader module to the given tester. */
-  static void RegisterTests(Tester& tester) {
-    // Test checking empty source name.
-    tester.Register([]() { return !CheckName(""); });
-    // Test checking source name with a non-upper case start.
-    tester.Register([]() { return !CheckName("hello"); });
-    // Test checking source name with a non-alphabetic character.
-    tester.Register([]() { return !CheckName("Hello+"); });
-    // Test checking a valid source name.
-    tester.Register([]() { return CheckName("Hello"); });
-
-    // Test whether correct amount of packages are loaded.
-    tester.Register([]() {
-      auto workspace = LoadWorkspace(".");
-      return workspace.packages.size() == 2;
-    });
-
-    // Test whether all packages have correct names.
-    tester.Register([]() {
-      auto workspace = LoadWorkspace(".");
-      return std::ranges::all_of(
-        workspace.packages, [](std::pair<std::string, Package> const& package) {
-          return std::visit(
-            Visitor{
-              [&package](Module const& content) {
-          return content.name == package.first;
-              },
-              [&package](Source const& content) {
-          return content.name == package.first;
-            }},
-            package.second.contents);
-        });
-    });
-
-    // Test whether all packages have a name.
-    tester.Register([]() {
-      auto workspace = LoadWorkspace(".");
-      return std::ranges::all_of(
-        workspace.packages, [](std::pair<std::string, Package> const& package) {
-          return !package.first.empty();
-        });
-    });
   }
 };
