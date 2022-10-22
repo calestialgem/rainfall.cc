@@ -110,21 +110,21 @@ private:
 
   /* Whether the given string can be the name of a Thrice source. */
   static bool CheckName(std::string_view name) {
-    auto CompareLowerCase = [](char compared) {
+    auto CompareToLowerCase = [](char compared) {
       return compared >= 'a' && compared <= 'z';
     };
-    auto CompareUpperCase = [](char compared) {
+    auto CompareToUpperCase = [](char compared) {
       return compared >= 'A' && compared <= 'Z';
     };
-    auto CompareDecimalDigit = [](char compared) {
+    auto CompareToDecimalDigit = [](char compared) {
       return compared >= '0' && compared <= '9';
     };
-    auto CompareAlpha = [=](char compared) {
-      return CompareLowerCase(compared) || CompareUpperCase(compared) ||
-             CompareDecimalDigit(compared);
+    auto CompareToAlpha = [=](char compared) {
+      return CompareToLowerCase(compared) || CompareToUpperCase(compared) ||
+             CompareToDecimalDigit(compared);
     };
-    return !name.empty() && CompareUpperCase(name[0]) &&
-           std::ranges::all_of(name, CompareAlpha);
+    return !name.empty() && CompareToUpperCase(name[0]) &&
+           std::ranges::all_of(name, CompareToAlpha);
   }
 
   /* Source at the given path. */
