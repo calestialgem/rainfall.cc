@@ -34,6 +34,7 @@ SetupTarget(${PROJECT_NAME})
 # Precompile standard library.
 target_precompile_headers(${PROJECT_NAME} PRIVATE
   <algorithm>
+  <array>
   <chrono>
   <cstddef>
   <filesystem>

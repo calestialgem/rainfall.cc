@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "rainfall.cc"
 #include "tester.cc"
 
 /* Character by character representation of code. */
@@ -15,34 +16,6 @@ struct Linear {
     std::string           name;
     /* Contents of the source. */
     std::string           contents;
-  };
-
-  /* A Thrice module. */
-  struct Module {
-    /* Name of the module. */
-    std::string                             name;
-    /* Contained sources that are directly under the module. This does not
-     * include the sources that are contained by the submodules of the
-     * module. */
-    std::unordered_map<std::string, Source> sources;
-    /* Contained modules that are directly under the module. This does not
-     * include the modules that are contained by the submodules of the
-     * module. */
-    std::unordered_map<std::string, Module> submodules;
-  };
-
-  /* A Thrice package. */
-  struct Package {
-    /* Name of the package. */
-    std::string                  name;
-    /* Contents of the package as a module or as a single source package. */
-    std::variant<Module, Source> contents;
-  };
-
-  /* A Rainfall workspace, which contains Thrice packages. */
-  struct Workspace {
-    /* Packages in the workspace. */
-    std::unordered_map<std::string, Package> packages;
   };
 
   /* Register the tests in the linear module to the given tester. */
@@ -66,16 +39,17 @@ struct Linear {
     tester.Register([]() {
       auto workspace = LoadWorkspace(".");
       return std::ranges::all_of(
-        workspace.packages, [](std::pair<std::string, Package> const& package) {
-          return std::visit(
-            Visitor{
-              [&package](Module const& content) {
+        workspace.packages,
+        [](std::pair<std::string, Rainfall<Source>::Package> const& package) {
+        return std::visit(
+          Visitor{
+            [&package](Rainfall<Source>::Module const& content) {
           return content.name == package.first;
-              },
-              [&package](Source const& content) {
+            },
+            [&package](Source const& content) {
           return content.name == package.first;
-            }},
-            package.second.contents);
+          }},
+          package.second.contents);
         });
     });
 
@@ -83,15 +57,17 @@ struct Linear {
     tester.Register([]() {
       auto workspace = LoadWorkspace(".");
       return std::ranges::all_of(
-        workspace.packages, [](std::pair<std::string, Package> const& package) {
-          return !package.first.empty();
+        workspace.packages,
+        [](std::pair<std::string, Rainfall<Source>::Package> const& package) {
+        return !package.first.empty();
         });
     });
   }
 
   /* Loads the workspace in the given directory. */
-  static Workspace LoadWorkspace(std::filesystem::path const& directory) {
-    Workspace result;
+  static Rainfall<Source>::Workspace
+  LoadWorkspace(std::filesystem::path const& directory) {
+    Rainfall<Source>::Workspace result;
     for (auto const& entry : std::filesystem::directory_iterator(directory)) {
       if (entry.is_directory()) {
         auto packageModule = LoadModule(entry, true);
@@ -154,25 +130,14 @@ private:
       .path = path, .name = path.stem().string(), .contents = contents};
   }
 
-  /* Total amount of sources in the module including the ones in the
-   * submodules. */
-  static std::size_t CountContainedSources(Module const& counted) {
-    return std::transform_reduce(
-      counted.submodules.begin(), counted.submodules.end(),
-      counted.sources.size(), std::plus{},
-      [](std::pair<std::string, Module> const& submodule) {
-      return CountContainedSources(submodule.second);
-      });
-  }
-
   /* Module at the given directory. */
-  static std::optional<Module>
+  static std::optional<Rainfall<Source>::Module>
   LoadModule(std::filesystem::path const& directory, bool package) {
     // Check whether the name is valid.
     if (!directory.has_filename() || !CheckName(directory.filename().string()))
       return std::nullopt;
 
-    Module result = {.name = directory.filename().string()};
+    Rainfall<Source>::Module result = {.name = directory.filename().string()};
 
     // Load all the entries in the directory.
     for (auto const& entry : std::filesystem::directory_iterator(directory)) {
@@ -189,7 +154,8 @@ private:
     }
 
     // The directory is not a module if there are no Thrice source in it.
-    if (CountContainedSources(result) == 0) return std::nullopt;
+    if (Rainfall<Source>::CountContainedSources(result) == 0)
+      return std::nullopt;
 
     return result;
   }
