@@ -15,7 +15,7 @@ class View {
 public:
 
   /* View to nowhere, without elements. */
-  static constexpr View EMPTY = {NULL, NULL};
+  static constexpr View EMPTY = {nullptr, nullptr};
 
   /* View of a null-terminated array. */
   [[nodiscard]] static constexpr View
