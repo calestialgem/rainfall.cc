@@ -4,11 +4,11 @@
 {
   "version": "2.0.0",
   "tasks": [
-    // Build the project using cmake.
+    // Rebuild the project using cmake.
     {
       "type": "cmake",
-      "label": "build",
-      "command": "build",
+      "label": "rebuild",
+      "command": "cleanRebuild",
       "group": {
         "kind": "build",
         "isDefault": true

@@ -31,41 +31,12 @@ endfunction(SetupTarget setTarget)
 add_executable(${PROJECT_NAME} src/main.cc)
 SetupTarget(${PROJECT_NAME})
 
-# Precompile standard library.
-target_precompile_headers(${PROJECT_NAME} PRIVATE
-  <algorithm>
-  <array>
-  <chrono>
-  <cstddef>
-  <filesystem>
-  <format>
-  <fstream>
-  <functional>
-  <iostream>
-  <iterator>
-  <numeric>
-  <optional>
-  <span>
-  <string>
-  <string_view>
-  <unordered_map>
-  <utility>
-  <variant>
-  <vector>
-
-  "src/visitor.cc"
-)
-
 # Header files in the project.
 set(headerFiles
-  src/tester.cc
-  src/linear.cc
+  src/view.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
 # Compile commands helps clangd to understand the headers.
 add_library(headerObjects OBJECT ${headerFiles})
 SetupTarget(headerObjects)
-
-# Reuse precompiled standard library.
-target_precompile_headers(headerObjects REUSE_FROM ${PROJECT_NAME})
