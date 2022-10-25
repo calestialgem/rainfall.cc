@@ -33,7 +33,7 @@ SetupTarget(${PROJECT_NAME})
 
 # Header files in the project.
 set(headerFiles
-  src/Printer.cc
+  src/lib.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
