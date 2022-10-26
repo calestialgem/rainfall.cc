@@ -37,33 +37,41 @@ File extension of a source is `.tr`. Name of a source can only contain the
 lowercase English letters and decimal digits. It cannot start with a decimal
 digit.
 
-## Modules
+## Module
 
-A _module_ is a directory, which might contain sources or submodules.
+A _module_ is a directory, which contains at least one source or module.
 
-Name of a module has the same rules as the name of a source.
+Name of a module has to obey the same rules as the source names.
 
-## Packages
+## Package
 
-A _package_ is a module that is not contained by a supermodule.
+A _package_ is a Thrice library. It is also an executable if it has an entry
+point.
 
-A source with the name `main` that is directly under the package directory is
-called the _main source_ and it must have an entry point. All packages are
-libraries. A package that has an entry point is also an executable at the same
-time.
+Packages can be structured as a single source or module. In both of these cases,
+the name of the source or the module becomes the name of the package.
+
+If the package is formed out of a single source, that source can have an entry
+point in it. Otherwise, the package can have a single source named `main` that
+can have an entry point, which is called a _main file_. Main file has to be
+directly under the module directory that forms the package.
 
 ## Visibility
 
-Visibility is whether a symbol can be accessed in the definition of another
+_Visibility_ is whether a symbol can be accessed in the definition of another
 symbol.
 
-A symbol is always visible in the source it is defined in. It can be more
-accessible using a visibility modifier. There are three visibility modifiers in
+A symbol is always visible in the source it is defined in. Its visibility can be
+increased using a _visibility modifier_. There are 3 visibility modifiers in
 Thrice:
 
 - `module` makes a symbol visible in the module it is defined in,
 - `intern` makes a symbol visible in the package it is defined in,
 - `extern` makes a symbol visible everywhere.
 
-The main source is considered as a file outside of the package. Thus, it can
-only access extern symbols of the executable package it is in.
+The visibility modifier must be the first thing in the definition of a symbol.
+
+The main file is considered as a file outside of the package. Thus, it can only
+access extern symbols of the executable package it is in. On the other hand, the
+entry point in a package that is formed from a single source can access all the
+symbols defined in that source as normal.
