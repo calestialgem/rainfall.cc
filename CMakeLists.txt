@@ -30,10 +30,11 @@ SetupTarget(${PROJECT_NAME})
 
 # Header files in the project.
 set(headerFiles
-  src/lib.cc
+  src/tester.cc
+  src/debugger.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
 # Compile commands helps clangd to understand the headers.
-add_library(headerObjects OBJECT ${headerFiles})
+add_library(headerObjects OBJECT EXCLUDE_FROM_ALL ${headerFiles})
 SetupTarget(headerObjects)
