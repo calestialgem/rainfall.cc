@@ -1,4 +1,5 @@
 #include "debugger.cc"
+#include "helper.cc"
 #include "tester.cc"
 
 #include <iostream> // cout
@@ -9,6 +10,7 @@ bool TestEverything() {
   rainfall::Tester tester;
   rainfall::Tester::TestModule(tester);
   rainfall::Debugger::TestModule(tester);
+  rainfall::Helper::TestModule(tester);
   return tester.ReportAndReturnResults();
 }
 

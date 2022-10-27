@@ -32,6 +32,7 @@ SetupTarget(${PROJECT_NAME})
 set(headerFiles
   src/tester.cc
   src/debugger.cc
+  src/helper.cc
 )
 
 # Add compile commands for the header files, but leave them as object files.
